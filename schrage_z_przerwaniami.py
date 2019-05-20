@@ -1,5 +1,5 @@
 import datetime
-
+import math
 
 
 def czytanie_z_pliku(plik):
@@ -43,12 +43,22 @@ def inicjalizacja():
     p = mega_maszyna[1]
     q = mega_maszyna[2]
 
+    r_core = r[::]
+    p_core = p[::]
+    q_core = q[::]
 
+    q[0] = math.inf
+    l = 0
+
+    globals()['r_core'] = r_core
+    globals()['p_core'] = p_core
+    globals()['q_core'] = q_core
     globals()['r'] = r
+    globals()['k'] = k
     globals()['p'] = p
     globals()['q'] = q
     globals()['t'] = t
-    globals()['k'] = k
+    globals()['l'] = l
     globals()['c_max'] = c_max
     globals()['G'] = G
     globals()['N'] = N
@@ -59,21 +69,32 @@ def inicjalizacja():
 # --------------------------DEFINICJE--------------------------#
 
 start = datetime.datetime.now()
-
 czytanie_z_pliku('data.txt')
 inicjalizacja()
 q_kopia = q[::]
 Q = []
+
 
 while ((G != []) or (N != [])):
 
     while ((N != []) and (min(value for value in r if value != None) <= t)):
         e = min(value for value in r if value != None)
         e_arg = r.index(e)
-        r[e_arg] = None
 
         G.append(e_arg)
         N.remove(e_arg)
+
+        if q[e_arg]>q[l]:
+            p[l] = t - r[e_arg]
+            t = r[e_arg]
+            if p[l] > 0:
+                G.append(l)
+
+        r[e_arg] = None
+
+
+        if q[0] == math.inf:
+            q[0] = q_core[0]
 
 
     for i in range(0, len(G)):
@@ -89,21 +110,16 @@ while ((G != []) or (N != [])):
         eq = Q.index(e)
         e_arg = G[eq]
 
-        q_kopia[e_arg] = None
-
-        pi[k] = e_arg
-        k = k + 1
+        l = e_arg
         t = t + p[e_arg]
         c_max = max(c_max, t + q[e_arg])
 
         G.remove(e_arg)
 
-
     Q = []
-
+    P = mega_maszyna[1]
 
 print('Czas wykonywania: ', c_max)
-print('Kolejnosc: ', pi)
 
 
 duration = datetime.datetime.now() - start
